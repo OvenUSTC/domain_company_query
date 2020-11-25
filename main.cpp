@@ -2,46 +2,86 @@
 #include <curl/curl.h>
 #include <string>
 #include <map>
+#include <unistd.h>
 #include "request.h"
 #include <jsoncpp/json/json.h>
+#include "dcq_conf.h"
+#include "dcq_get_info.h"
 
 using namespace std;
 
-#define MZH_API "https://api.66mz8.com/api/icp.php?domain="
+int get_params(int argc, char **argv, string &conf_file, vector<string> &domains)
+{
+	char ch;
+	int i;
 
-int main(int argc, char** argv) {
-	int num = argc - 1;
-
-	for(int i=0; i<num; i++) {
-		std::map<std::string, std::string> data;
-		std::string body;
-		std::string response;
-		int status_code;
-		std::string name(argv[i+1]);
-		std::string url = MZH_API + name;
-
-		status_code = posts(url, body, &response);
-		if (status_code != CURLcode::CURLE_OK) {
-				cout << "未备案" << endl;
-				continue;
-		}
-
-		Json::Reader reader; 
-		Json::Value root; 
-
-		if (!reader.parse(response, root))
-		{ 
-			cout << "未备案" << endl;
-		} 
-		else 
+	while ((ch = getopt(argc, argv, "c:d:")) != -1)
+	{
+		switch (ch)
 		{
-			Json::Value arrayObj = root["主办单位名称"];
-			if (arrayObj.isNull())
-				cout << name << ": " << "未备案" << endl;
-			else
-				cout << name << ": " << arrayObj.asString() << endl;
+		case 'c':
+			conf_file = optarg;
+			break;
+		case 'd':
+			i = 0;
+			domains.push_back(optarg);
+			while(argv[optind + i] != NULL && argv[optind + i][0] != '-')
+			{
+				domains.push_back(argv[optind + i++]);
+			}
+			
+			break;
+
+		case '?':
+			printf("Unknown option: %c\n",(char)optopt);
+			break;
+
+		default:
+			break;
 		}
 	}
 
+	if (domains.size() == 0)
+		return -EINVAL;
+	
+	return 0;
+}
+
+int main(int argc, char **argv)
+{
+	vector<string> domains;
+	string conf_file = "";
+	struct conf_context *out_conf = nullptr;
+	int ret = 0;
+
+	/* 读取参数 */
+	if(get_params(argc, argv, conf_file, domains) != 0)
+	{
+		cout << "Domain name must be entered" << endl;
+		return -1;
+	}
+
+	/* 读取配置文件 */
+	ret = dcq_config_load(conf_file, &out_conf);
+	if (ret < 0)
+	{
+		cout << "Could not load configuration file " << ret
+			 << endl;
+		return -1;
+	}
+
+	/* 获取结果并输出 */
+	for (int i = 0; i < domains.size(); i++)
+	{
+		domain_info info;
+		get_domain_info(domains[i], info, out_conf);
+		for(auto iter = info.begin(); iter!=info.end(); iter++)
+		{
+			cout << domains[i] << ": " << iter->second << endl;
+		}
+	}
+
+	dcq_config_free(out_conf);
+	out_conf = nullptr;
 	return 0;
 }

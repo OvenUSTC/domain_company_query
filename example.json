@@ -1,0 +1,26 @@
+{
+	"global": {
+		"log_file": "/var/log/dcq.log",
+		"db": "/home/domain.db",
+		"debug_level": 10,
+		"time_out": 60
+	},
+
+	"icp": [
+		{
+			"curl": "https://v1.alapi.cn/api/whois?domain=*",
+			"type": "POST",
+			"key": [
+				"主办单位名称"
+			]
+		},
+		{
+			"curl": "https://api.66mz8.com/api/icp.php?domain=*",
+			"type": "POST",
+			"key": [
+				"主办单位名称",
+				"网站备案名称"
+			]
+		}
+	]
+}
