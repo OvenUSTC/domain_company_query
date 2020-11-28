@@ -38,3 +38,7 @@ http://www.beianbeian.com/search/www.sina.com.html
 其它要求：
 1，健壮性：尽可能考虑过程中可能出现的异常，比如严格的错误检查，有备用方案
 2，可测试性、调试性：合理地记录日志，比如完善日志输出，中间数据输出
+
+
+valgrind --tool=memcheck --leak-check=full --log-file=/var/log/leak_mem.log ./dcq -c ./example.json -d qq.com baidu.com -f ./domain.list
+./dcq -c ./example.json -d qq.com baidu.com -f ./domain.list

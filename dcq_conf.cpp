@@ -4,10 +4,11 @@
 #include <fstream>
 #include <jsoncpp/json/json.h>
 #include "dcq_conf.h"
+#include "dcq_log.h"
 
 using namespace std;
 
-static int json_File_load(string config_file, struct conf_context *conf)
+static int json_file_load(string config_file, struct conf_context *conf)
 {
     Json::Reader reader;
     Json::Value root;
@@ -58,11 +59,6 @@ static int json_File_load(string config_file, struct conf_context *conf)
     Json::Value global = root["global"];
     Json::Value icp = root["icp"];
     /* 解析 global 配置 */
-    if (!global["log_file"].isNull() && global["log_file"].isString())
-    {
-        conf->global.log_file = global["log_file"].asString();
-    }
-
     if (!global["db"].isNull() && global["db"].isString())
     {
         conf->global.db = global["db"].asString();
@@ -137,6 +133,10 @@ int dcq_config_load(string config_file, struct conf_context **out_conf)
 
     *out_conf = nullptr;
 
+    DCQ_LOG(INFO) << __FUNCTION__ << " enter"
+                  << " config_file:" << config_file
+                  << " out_conf" << out_conf;
+
     conf = new (std::nothrow)(struct conf_context);
     if (conf == nullptr)
     {
@@ -144,7 +144,7 @@ int dcq_config_load(string config_file, struct conf_context **out_conf)
         return -ENOMEM;
     }
 
-    ret = json_File_load(config_file, conf);
+    ret = json_file_load(config_file, conf);
     if (ret != 0)
     {
         cout << "Error loal conf form file " << config_file
@@ -157,6 +157,9 @@ int dcq_config_load(string config_file, struct conf_context **out_conf)
     }
 
     *out_conf = conf;
+
+    DCQ_LOG(INFO) << __FUNCTION__ << " exit"
+                  << "ret:" << ret;
     return 0;
 }
 

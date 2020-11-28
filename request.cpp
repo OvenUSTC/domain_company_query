@@ -63,8 +63,8 @@ int posts(string url, string &body, string *response)
         ret = curl_easy_perform(curl);
         if (ret == 0)
         {
-            curl_easy_cleanup(curl);
             curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+            curl_easy_cleanup(curl);
             return 0;
         }
         else

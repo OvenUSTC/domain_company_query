@@ -1,6 +1,5 @@
 {
 	"global": {
-		"log_file": "/var/log/dcq.log",
 		"db": "/home/domain.db",
 		"debug_level": 10,
 		"time_out": 60
@@ -18,8 +17,7 @@
 			"curl": "https://api.66mz8.com/api/icp.php?domain=*",
 			"type": "POST",
 			"key": [
-				"主办单位名称",
-				"网站备案名称"
+				"主办单位名称"
 			]
 		}
 	]

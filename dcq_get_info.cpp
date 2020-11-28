@@ -2,6 +2,7 @@
 #include <string>
 #include <map>
 #include <jsoncpp/json/json.h>
+#include <time.h>
 #include "dcq_conf.h"
 #include "dcq_get_info.h"
 #include "request.h"
@@ -33,7 +34,6 @@ static int get_respose_info(string &response, const string &key, domain_info &in
 
 	if (!reader.parse(response, root))
 	{
-		cout << "未备案" << endl;
         return -ENONET;
 	}
 	
