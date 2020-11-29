@@ -1,3 +1,12 @@
+/*******************************************************************
+ *	文件名称: main.cpp
+ *	简要描述: domain company query 主程序
+ *	
+ *	当前版本:1.0
+ *	作者: ZJJ
+ *	日期: 2020/11/29
+ *	说明: 主函数及参数获取函数
+ ******************************************************************/
 #include <iostream>
 #include <curl/curl.h>
 #include <string>
@@ -13,7 +22,7 @@
 
 using namespace std;
 
-int get_params(int argc, char **argv, string &conf_file, vector<string> &domains, string &log_file)
+int dcq_get_params(int argc, char **argv, string &conf_file, vector<string> &domains, string &log_file)
 {
 	char ch;
 	int i;
@@ -70,17 +79,18 @@ int main(int argc, char **argv)
 	int ret = 0;
 
 	/* 读取参数 */
-	if (get_params(argc, argv, conf_file, domains, log_file) != 0)
+	if (dcq_get_params(argc, argv, conf_file, domains, log_file) != 0)
 	{
-		cout << "Domain name must be entered" << endl;
+		DCQ_COUT << "Domain name must be entered" << DCQ_ENDL;
 		return -1;
 	}
 
+	/* 初始化日志模块 */
 	ret = dcq_log_init(log_file.c_str());
 	if (ret < 0)
 	{
-		cout << "Could not open log file " << ret
-			 << endl;
+		DCQ_COUT << "Could not open log file " << ret
+			 	 << DCQ_ENDL;
 		return -1;
 	}
 
@@ -91,7 +101,15 @@ int main(int argc, char **argv)
 	if (ret < 0)
 	{
 		DCQ_LOG(ERROR) << "Could not load configuration file " << ret;
+		DCQ_COUT << "Could not load configuration file " << ret << DCQ_ENDL;
 		return -1;
+	}
+
+	/* 设置日志等级 */
+	ret = dcq_set_log_level(out_conf->global.debug_level);
+	if (ret < 0)
+	{
+		DCQ_COUT << "Set as the default log level 0." << DCQ_ENDL;
 	}
 
 	/* 获取结果并输出 */
@@ -101,13 +119,15 @@ int main(int argc, char **argv)
 		get_domain_info(domains[i], info, out_conf);
 		if (info.size() == 0)
 		{
-			cout << domains[i] << ": 未备案" << endl;
+			DCQ_COUT << domains[i] << ": not filed" << DCQ_ENDL;
+			DCQ_LOG(INFO) << domains[i] << ": not filed";
 			continue;
 		}
 
 		for (auto iter = info.begin(); iter != info.end(); iter++)
 		{
-			cout << domains[i] << ": " << iter->second << endl;
+			DCQ_COUT << domains[i] << ": " << iter->second << DCQ_ENDL;
+			DCQ_LOG(INFO) << domains[i] << ": " << iter->second;
 		}
 	}
 

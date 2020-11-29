@@ -1,7 +1,7 @@
 {
 	"global": {
 		"db": "/home/domain.db",
-		"debug_level": 10,
+		"debug_level": 2,
 		"time_out": 60
 	},
 
