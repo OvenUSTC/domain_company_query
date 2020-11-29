@@ -45,6 +45,7 @@ int get(string url, string *response)
         }
         else
         {
+            curl_easy_cleanup(curl);
             return ret;
         }
     }
@@ -79,6 +80,7 @@ int posts(string url, string &body, string *response)
         else
         {
             curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+            curl_easy_cleanup(curl);
             return ret;
         }
     }
@@ -121,6 +123,7 @@ static int put(char *url, FILE *fd, int fsize, char *response)
         }
         else
         {
+            curl_easy_cleanup(curl);
             return ret;
         }
     }
