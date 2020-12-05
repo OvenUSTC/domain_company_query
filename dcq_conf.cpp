@@ -169,11 +169,18 @@ int dcq_config_load(string config_file, struct conf_context **out_conf)
     struct conf_context *conf = nullptr;
     int ret = 0;
 
-    *out_conf = nullptr;
-
     DCQ_LOG(INFO) << __FUNCTION__ << " enter"
                   << " config_file:" << config_file
                   << " out_conf:" << out_conf;
+
+    if (out_conf == nullptr)
+    {
+        DCQ_LOG(ERROR) << __FUNCTION__ << "exit"
+                       << " out_conf:" << out_conf
+                       << endl;
+    }
+
+    *out_conf = nullptr;
 
     conf = new (std::nothrow)(struct conf_context);
     if (conf == nullptr)

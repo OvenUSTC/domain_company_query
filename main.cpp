@@ -131,6 +131,7 @@ int main(int argc, char **argv)
 		}
 	}
 
+	dcq_log_release();
 	dcq_config_free(out_conf);
 	out_conf = nullptr;
 	return 0;

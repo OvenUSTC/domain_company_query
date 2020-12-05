@@ -28,7 +28,8 @@ int dcq_log_init(const char *log_dir, int log_level)
         FLAGS_log_dir = DEFAULT_LOG_FILE;
         DCQ_COUT << "Warn log dir is NULL, set log dir:" << DEFAULT_LOG_FILE << DCQ_ENDL;
     }
-    else {
+    else 
+    {
         ret = stat(log_dir, &st);
         if (S_ISDIR(st.st_mode) || ret == 0)
         {
