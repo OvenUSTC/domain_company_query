@@ -138,9 +138,12 @@ int main(int argc, char **argv)
 			DCQ_LOG(INFO) << domains[i] << ": " << iter->second;
 		}
 
+		domain_info tmp_info;
 		dcq_db_insert(db, domains[i], info, DCQ_DB_INSERT);
+		dcq_db_search(db, domains[i], tmp_info);
 	}
 
+	dcq_db_close(db);
 	dcq_config_free(out_conf);
 	out_conf = nullptr;
 	return 0;

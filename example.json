@@ -1,6 +1,6 @@
 {
 	"global": {
-		"db": "/home/domain.db",
+		"db": "./domain.db",
 		"debug_level": 2,
 		"time_out": 60
 	},
