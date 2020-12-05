@@ -75,7 +75,7 @@ int main(int argc, char **argv)
 	vector<string> domains;
 	string conf_file = "";
 	string log_file = DEFAULT_LOG_FILE;
-	struct conf_context *out_conf = nullptr;
+	struct conf_context *conf = nullptr;
 	int ret = 0;
 
 	/* 读取参数 */
@@ -97,7 +97,7 @@ int main(int argc, char **argv)
 	DCQ_LOG(INFO) << "staring domain company query server";
 
 	/* 读取配置文件 */
-	ret = dcq_config_load(conf_file, &out_conf);
+	ret = dcq_config_load(conf_file, &conf);
 	if (ret < 0)
 	{
 		DCQ_LOG(ERROR) << "Could not load configuration file " << ret;
@@ -106,7 +106,7 @@ int main(int argc, char **argv)
 	}
 
 	/* 设置日志等级 */
-	ret = dcq_set_log_level(out_conf->global.debug_level);
+	ret = dcq_set_log_level(conf->global.debug_level);
 	if (ret < 0)
 	{
 		DCQ_COUT << "Set as the default log level 0." << DCQ_ENDL;
@@ -116,7 +116,7 @@ int main(int argc, char **argv)
 	for (int i = 0; i < domains.size(); i++)
 	{
 		domain_info info;
-		get_domain_info(domains[i], info, out_conf);
+		get_domain_info(domains[i], info, conf);
 		if (info.size() == 0)
 		{
 			DCQ_COUT << domains[i] << ": not filed" << DCQ_ENDL;
@@ -132,7 +132,7 @@ int main(int argc, char **argv)
 	}
 
 	dcq_log_release();
-	dcq_config_free(out_conf);
-	out_conf = nullptr;
+	dcq_config_free(conf);
+	conf = nullptr;
 	return 0;
 }

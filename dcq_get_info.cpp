@@ -74,27 +74,37 @@ static int get_respose_info(string &response, const string &key, domain_info &in
     return 0;
 }
 
-int get_domain_info(string dmain_url, domain_info &info, struct conf_context *out_conf)
+int get_domain_info(string dmain_url, domain_info &info, struct conf_context *conf)
 {
     int i, j;
-    int api_num = out_conf->icp.size();
+    int api_num = 0;
     int status_code;
     string body;
 
     DCQ_LOG(INFO) << __FUNCTION__ << " enter"
                      << " dmain_url:" << dmain_url
-                     << " out_conf:" << out_conf;
+                     << " out_conf:" << conf;
+
+    if (conf == nullptr)
+    {
+        DCQ_LOG(INFO) << __FUNCTION__ << " exit"
+                      << " conf:" << conf
+                      << " ret:" << -EINVAL;
+        return -EINVAL;
+    }
+
+    api_num = conf->icp.size();
 
     /* TODO 搜索本地 tdb 数据库 */
 
     /* 搜索远程 API 域名备案信息，优先最后一个 API */
     for (i = 0; i < api_num; i++)
     {
-        string api_url = out_conf->icp[i].curl;
+        string api_url = conf->icp[i].curl;
         string response;
         replace_all(api_url, "*", dmain_url);
 
-        if (out_conf->icp[i].type == "POST")
+        if (conf->icp[i].type == "POST")
         {
             status_code = posts(api_url, body, &response);
         }
@@ -112,9 +122,9 @@ int get_domain_info(string dmain_url, domain_info &info, struct conf_context *ou
 			continue;
 		}
         
-        int key_num = out_conf->icp[i].key.size();
+        int key_num = conf->icp[i].key.size();
         for(j=0; j<key_num; j++) {
-            get_respose_info(response, out_conf->icp[i].key[j], info);
+            get_respose_info(response, conf->icp[i].key[j], info);
         }
 
         /* TODO 备案选择算法 */
