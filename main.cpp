@@ -114,9 +114,10 @@ int main(int argc, char **argv)
 		DCQ_COUT << "Set as the default log level 0." << DCQ_ENDL;
 	}
 
-	db = dcq_db_open(out_conf);
-	if (db == NULL)
+	out_conf->db_handle = dcq_db_open(out_conf);
+	if (out_conf->db_handle == NULL)
 	{
+		/* 没有本地数据库就从互联网上获取，这里不会退出 */
 		DCQ_COUT << "Can not open db file." << DCQ_ENDL;
 	}
 
@@ -137,13 +138,12 @@ int main(int argc, char **argv)
 			DCQ_COUT << domains[i] << ": " << iter->second << DCQ_ENDL;
 			DCQ_LOG(INFO) << domains[i] << ": " << iter->second;
 		}
-
-		domain_info tmp_info;
-		dcq_db_insert(db, domains[i], info, DCQ_DB_INSERT);
-		dcq_db_search(db, domains[i], tmp_info);
 	}
 
-	dcq_db_close(db);
+	if (out_conf->db_handle) {
+		dcq_db_close(out_conf->db_handle);
+		out_conf->db_handle = nullptr;
+	}
 	dcq_config_free(out_conf);
 	out_conf = nullptr;
 	return 0;

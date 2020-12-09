@@ -21,12 +21,25 @@ static int dcq_info2josn(domain_info &info, string &json)
 {
     Json::Value jobject;
 
+    DCQ_LOG(INFO) << __FUNCTION__ << " enter"
+                  << " data" << &info;
+
+    if (info.size() == 0)
+    {
+        DCQ_LOG(ERROR) << __FUNCTION__ << " exit"
+                       << " ret:" << 0;
+        return -EINVAL;
+    }
+
     for(auto iter = info.begin(); iter != info.end(); iter++)
     {
         jobject[iter->first] = iter->second;
     }
 
     json = jobject.toStyledString();
+
+    DCQ_LOG(INFO) << __FUNCTION__ << " exit"
+                   << " ret:" << 0;
 
     return 0;
 }
@@ -127,7 +140,7 @@ int dcq_db_insert(dcq_db_context *fd, string domain_name, domain_info &info, int
     key.dptr = (unsigned char *)domain_name.c_str();
     key.dsize = domain_name.size();
     data.dptr = (unsigned char *)json.data();
-    data.dsize = json.size() + 1;
+    data.dsize = json.size();
 
     DCQ_LOG(INFO) << __FUNCTION__ << " json"
                   << " key:" << domain_name
@@ -186,13 +199,13 @@ int dcq_db_search(dcq_db_context *fd, string domain_name, domain_info &info)
     {
         DCQ_LOG(ERROR) << __FUNCTION__ << " json to info failed"
                       << " key:" << domain_name;
-        TALLOC_FREE(data.dptr);
+        free(data.dptr);
         return ret;
     }
 
     DCQ_LOG(INFO) << __FUNCTION__ << " exit"
                   << " ret:" << ret;
-    TALLOC_FREE(data.dptr);
+    free(data.dptr);
     return ret;
 }
 

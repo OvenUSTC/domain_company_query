@@ -94,6 +94,25 @@ static int json_file_load(string config_file, struct conf_context *conf)
                       << " set global time_out:" << conf->global.time_out;
     }
 
+    if (!global["key"].isNull() && global["key"].isArray() &&
+        global["key"].size() > 0 && global["key"][0].isString())
+    {
+        for (j = 0; j < global["key"].size(); j++)
+        {
+            conf->global.key.push_back(global["key"][j].asString());
+            DCQ_LOG(INFO) << __FUNCTION__
+                          << "global[" << i
+                          << "] key:" << global["key"][j].asString();
+        }
+    }
+    else
+    {
+        conf->global.key.push_back(DEFAULT_KEY);
+        DCQ_LOG(INFO) << __FUNCTION__
+                      << "global[" << i
+                      << "] key:" << DEFAULT_KEY;
+    }
+
     /* 解析 icp 配置 */
     for (i = 0; i < icp.size(); i++)
     {
@@ -132,26 +151,6 @@ static int json_file_load(string config_file, struct conf_context *conf)
                                  << " not POST or GET "
                                  << " set defalut POST";
             }
-        }
-
-        if (!api["key"].isNull() && api["key"].isArray() &&
-            api["key"].size() > 0 && api["key"][0].isString())
-        {
-            for (j = 0; j < api["key"].size(); j++)
-            {
-                icp_ctx.key.push_back(api["key"][j].asString());
-                DCQ_LOG(INFO) << __FUNCTION__
-                              << "icp[" << i
-                              << "] key:" << api["key"][j].asString();
-            }
-        }
-        else
-        {
-            icp_ctx.key.push_back(DEFAULT_KEY);
-            DCQ_LOG(INFO) << __FUNCTION__
-                          << "icp[" << i
-                          << "] key:" << DEFAULT_KEY;
-            continue;
         }
 
         conf->icp.push_back(icp_ctx);

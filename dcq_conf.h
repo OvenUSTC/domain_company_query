@@ -7,16 +7,17 @@
  *	日期: 2020/11/29
  *	说明: json 配置文件解析相关逻辑
  ******************************************************************/
+#ifndef __DCQ_CONF_H__
+#define __DCQ_CONF_H__
+
 #include <iostream>
 #include <string>
 #include <map>
 #include <fstream>
 #include <jsoncpp/json/json.h>
+#include "dcq_db.h"
 
 using namespace std;
-
-#ifndef __DCQ_CONF_H__
-#define __DCQ_CONF_H__
 
 #define DEFAULT_DB "/home/domain.db"
 #define DEFAULT_DEBUG_LEVEL (0)
@@ -28,19 +29,20 @@ struct global_context
     string db = DEFAULT_DB;
     int debug_level = DEFAULT_DEBUG_LEVEL;
     int time_out = DEFAULT_DEBUG_LEVEL;
+    vector<string> key;
 };
 
 struct icp_context
 {
     string curl = "";
     string type = "";
-    vector<string> key;
 };
 
 struct conf_context
 {
     struct global_context global;
     vector<struct icp_context> icp;
+    dcq_db_context *db_handle = nullptr;
 };
 
 /*******************************************************************
