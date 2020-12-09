@@ -22,10 +22,7 @@ using namespace google;
 #define DCQ_COUT std::cout
 #define DCQ_ENDL std::endl
 
-extern int global_log_level;
-
-#define DCQ_LOG(level) \
-    (level) >= global_log_level ? 1:0 && LOG(level)
+#define DCQ_LOG(level) LOG(level)
 
 /*******************************************************************
  *	函数名称: dcq_log_init

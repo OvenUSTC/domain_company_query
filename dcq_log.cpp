@@ -17,8 +17,6 @@
 
 using namespace google;
 
-int global_log_level = google::INFO;
-
 int dcq_log_init(const char *log_dir, int log_level)
 {
     struct stat st;
@@ -44,7 +42,7 @@ int dcq_log_init(const char *log_dir, int log_level)
             FLAGS_log_dir = DEFAULT_LOG_FILE;
         }
     }
-    global_log_level = log_level;
+    FLAGS_minloglevel = log_level;
     FLAGS_logbufsecs = 0;
     FLAGS_logtostderr = false;
     FLAGS_alsologtostderr = false;
@@ -65,7 +63,7 @@ int dcq_set_log_level(int log_level)
         return -EINVAL;
     }
 
-    global_log_level = log_level;
+    FLAGS_minloglevel = log_level;
     return 0;
 }
 
