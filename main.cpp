@@ -19,6 +19,7 @@
 #include "dcq_get_info.h"
 #include "dcq_domain_list.h"
 #include "dcq_log.h"
+#include "dcq_db.h"
 
 using namespace std;
 
@@ -76,6 +77,8 @@ int main(int argc, char **argv)
 	string conf_file = "";
 	string log_file = DEFAULT_LOG_FILE;
 	struct conf_context *conf = nullptr;
+	dcq_db_context *db = NULL;
+
 	int ret = 0;
 
 	/* 读取参数 */
@@ -112,6 +115,13 @@ int main(int argc, char **argv)
 		DCQ_COUT << "Set as the default log level 0." << DCQ_ENDL;
 	}
 
+	conf->db_handle = dcq_db_open(conf);
+	if (conf->db_handle == NULL)
+	{
+		/* 没有本地数据库就从互联网上获取，这里不会退出 */
+		DCQ_COUT << "Can not open db file." << DCQ_ENDL;
+	}
+
 	/* 获取结果并输出 */
 	for (int i = 0; i < domains.size(); i++)
 	{
@@ -131,6 +141,10 @@ int main(int argc, char **argv)
 		}
 	}
 
+	if (conf->db_handle) {
+		dcq_db_close(conf->db_handle);
+		conf->db_handle = nullptr;
+	}
 	dcq_log_release();
 	dcq_config_free(conf);
 	conf = nullptr;

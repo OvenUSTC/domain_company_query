@@ -1,24 +1,21 @@
 {
 	"global": {
-		"db": "/home/domain.db",
-		"debug_level": 2,
-		"time_out": 60
+		"db": "./domain.db",
+		"debug_level": 1,
+		"time_out": 60,
+		"key": [
+			"主办单位名称"
+		]
 	},
 
 	"icp": [
 		{
 			"curl": "https://v1.alapi.cn/api/whois?domain=*",
-			"type": "POST",
-			"key": [
-				"主办单位名称"
-			]
+			"type": "POST"
 		},
 		{
 			"curl": "https://api.66mz8.com/api/icp.php?domain=*",
-			"type": "POST",
-			"key": [
-				"主办单位名称"
-			]
+			"type": "POST"
 		}
 	]
 }
