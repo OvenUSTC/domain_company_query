@@ -1,7 +1,7 @@
 {
 	"global": {
 		"db": "./domain.db",
-		"debug_level": 1,
+		"debug_level": 0,
 		"time_out": 60,
 		"key": [
 			"主办单位名称"
