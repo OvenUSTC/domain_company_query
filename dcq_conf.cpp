@@ -97,24 +97,22 @@ static int json_file_load(string config_file, struct conf_context *conf)
     if (!global["key"].isNull() && global["key"].isArray() &&
         global["key"].size() > 0 && global["key"][0].isString())
     {
-        for (j = 0; j < global["key"].size(); j++)
+        for (j = 0; j < (int)global["key"].size(); j++)
         {
             conf->global.key.push_back(global["key"][j].asString());
             DCQ_LOG(INFO) << __FUNCTION__
-                          << "global[" << i
-                          << "] key:" << global["key"][j].asString();
+                          << "global key:" << global["key"][j].asString();
         }
     }
     else
     {
         conf->global.key.push_back(DEFAULT_KEY);
         DCQ_LOG(INFO) << __FUNCTION__
-                      << "global[" << i
-                      << "] key:" << DEFAULT_KEY;
+                      << "global key:" << DEFAULT_KEY;
     }
 
     /* 解析 icp 配置 */
-    for (i = 0; i < icp.size(); i++)
+    for (i = 0; i < (int)icp.size(); i++)
     {
         Json::Value api = icp[i];
         struct icp_context icp_ctx;
@@ -177,6 +175,7 @@ int dcq_config_load(string config_file, struct conf_context **out_conf)
         DCQ_LOG(ERROR) << __FUNCTION__ << "exit"
                        << " out_conf:" << out_conf
                        << endl;
+        return -EINVAL;
     }
 
     *out_conf = nullptr;

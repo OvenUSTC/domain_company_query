@@ -10,7 +10,8 @@
 using namespace std;
 
 typedef map<string, map<string, string> > domains_result;
-typedef int (*call_back_fn) (domains_result &info);
+typedef map<string, string> domain_info;
+typedef int (*call_back_fn) (string &domain, domain_info &info, void* data);
 
 class dcq
 {

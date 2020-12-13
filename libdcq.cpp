@@ -147,18 +147,8 @@ future<int> dcq::query_domain_async(call_back_fn fn, domains_result &res)
 	auto _get_info = [&res](dcq *dcq_handle, domains_result res, call_back_fn fn) {
 		int ret = 0;
 
-		for (size_t i = 0; i < dcq_handle->domains.size(); i++)
-		{
-			domain_info info;
-			get_domain_info(dcq_handle->domains[i], info, dcq_handle->conf);
+		get_domain_info_multithread(dcq_handle->domains, dcq_handle->conf, fn, &res);
 
-			res[dcq_handle->domains[i]] = info;
-		}
-
-		if (fn)
-		{
-			ret = fn(res);
-		}
 		return ret;
 	};
 

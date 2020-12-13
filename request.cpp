@@ -92,7 +92,7 @@ int posts(string url, string &body, string *response)
 
 static size_t read_data(char *buffer, size_t size, size_t nitems, void *instream)
 {
-    size_t sizes = fread(buffer, size, nitems, (FILE *)instream);
+    fread(buffer, size, nitems, (FILE *)instream);
     return nitems;
 }
 

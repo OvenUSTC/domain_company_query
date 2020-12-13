@@ -1,3 +1,4 @@
+all:libdcq.so unit_test_libdcq dcq
 unit_test_libdcq:unit_test_libdcq.o libdcq.so
 	g++ -o unit_test_libdcq unit_test_libdcq.o -lcurl -ljsoncpp -lglog -ltdb -lgtest -lpthread -fprofile-arcs -ftest-coverage -L. -ldcq 
 unit_test_libdcq.o:unit_test_libdcq.cpp
@@ -7,7 +8,7 @@ libdcq.so:libdcq.o request.o dcq_conf.o dcq_get_info.o dcq_domain_list.o dcq_log
 libdcq.o:libdcq.cpp
 	g++ -fPIC -Wall -g -c libdcq.cpp -fprofile-arcs -ftest-coverage
 dcq:main.o request.o dcq_conf.o dcq_get_info.o dcq_domain_list.o dcq_log.o dcq_db.o
-	g++ -fPIC -Wall -o dcq -std=c++11 main.o request.o dcq_conf.o dcq_get_info.o dcq_domain_list.o dcq_log.o dcq_db.o -lcurl -ljsoncpp -lglog -ltdb -g -fprofile-arcs -ftest-coverage
+	g++ -fPIC -Wall -o dcq -std=c++11 main.o request.o dcq_conf.o dcq_get_info.o dcq_domain_list.o dcq_log.o dcq_db.o -lpthread -lcurl -ljsoncpp -lglog -ltdb -g -fprofile-arcs -ftest-coverage
 main.o:main.cpp request.h dcq_conf.h
 	g++ -c -fPIC -Wall -std=c++11 main.cpp request.h dcq_conf.h -g -fprofile-arcs -ftest-coverage
 request.o:request.cpp
@@ -26,4 +27,3 @@ clean:
 	rm -rf *.o dcq *.gch *.so *.gcno *.info *gcda unit_test_libdcq
 install:
 	sudo cp ./libdcq.so /usr/lib/x86_64-linux-gnu/libdcq.so
-	lcov -d ./ -t 'unit_test_libdcq' -o 'test.info' -b . -c

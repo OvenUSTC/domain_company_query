@@ -71,13 +71,29 @@ int dcq_get_params(int argc, char **argv, string &conf_file, vector<string> &dom
 	return 0;
 }
 
+int dcq_show_domain(string &domain, domain_info &info, void* data)
+{
+	if (info.size() == 0)
+	{
+		DCQ_COUT << domain << ": not filed" << DCQ_ENDL;
+		DCQ_LOG(INFO) << domain << ": not filed";
+	}
+
+	for (auto iter = info.begin(); iter != info.end(); iter++)
+	{
+		DCQ_COUT << domain << ": " << iter->second << DCQ_ENDL;
+		DCQ_LOG(INFO) << domain << ": " << iter->second;
+	}
+
+	return 0;
+}
+
 int main(int argc, char **argv)
 {
 	vector<string> domains;
 	string conf_file = "";
 	string log_file = DEFAULT_LOG_FILE;
 	struct conf_context *conf = nullptr;
-	dcq_db_context *db = NULL;
 
 	int ret = 0;
 
@@ -123,23 +139,8 @@ int main(int argc, char **argv)
 	}
 
 	/* 获取结果并输出 */
-	for (int i = 0; i < domains.size(); i++)
-	{
-		domain_info info;
-		get_domain_info(domains[i], info, conf);
-		if (info.size() == 0)
-		{
-			DCQ_COUT << domains[i] << ": not filed" << DCQ_ENDL;
-			DCQ_LOG(INFO) << domains[i] << ": not filed";
-			continue;
-		}
-
-		for (auto iter = info.begin(); iter != info.end(); iter++)
-		{
-			DCQ_COUT << domains[i] << ": " << iter->second << DCQ_ENDL;
-			DCQ_LOG(INFO) << domains[i] << ": " << iter->second;
-		}
-	}
+	domains_info all_info;
+	get_domain_info_multithread(domains, conf, dcq_show_domain, &all_info);
 
 	if (conf->db_handle) {
 		dcq_db_close(conf->db_handle);

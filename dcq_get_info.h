@@ -20,6 +20,8 @@ using namespace std;
 #define __DCQ_GET_INFO_H__
 
 typedef map<string, string> domain_info;
+typedef map<string, map<string, string>> domains_info;
+typedef int (*call_back_fn) (string &domain, domain_info &info, void* data);
 
 /*******************************************************************
  *	函数名称: get_domain_info
@@ -30,4 +32,5 @@ typedef map<string, string> domain_info;
  *	返回值:   errno 0 成功, <0 错误码
  ******************************************************************/
 extern int get_domain_info(string dmain_url, domain_info &info, struct conf_context *out_conf);
+extern int get_domain_info_multithread(vector<string> domain_url, struct conf_context *conf, call_back_fn fn, void* data);
 #endif

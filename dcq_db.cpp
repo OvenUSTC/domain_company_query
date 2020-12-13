@@ -176,8 +176,7 @@ int dcq_db_search(dcq_db_context *fd, string domain_name, domain_info &info)
     key.dsize = domain_name.size();
 
     DCQ_LOG(INFO) << __FUNCTION__ << " set data"
-                  << " key:" << domain_name
-                  << " data:" << data.dptr;
+                  << " key:" << domain_name;
 
     if(!tdb_exists(fd, key))
     {
@@ -211,5 +210,8 @@ int dcq_db_search(dcq_db_context *fd, string domain_name, domain_info &info)
 
 int dcq_db_close(dcq_db_context *fd)
 {
+    if(fd == nullptr)
+        return -EINVAL;
+
     return tdb_close(fd);
 }
