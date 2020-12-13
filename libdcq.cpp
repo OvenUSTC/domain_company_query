@@ -6,6 +6,17 @@
 #include <glog/logging.h>
 #include <jsoncpp/json/json.h>
 #include <thread>
+#include <future>
+#include <utility>
+#include <thread>
+#include <functional>
+#include <memory>
+#include <exception> 
+#include <numeric>
+#include <vector>
+#include <cmath>
+#include <string>
+#include <mutex>
 #include "request.h"
 #include "dcq_conf.h"
 #include "dcq_get_info.h"
@@ -61,46 +72,44 @@ dcq::dcq(char *conf_file, char *log_file)
     return;
 }
 
-int dcq::push_domain(const char *domain)
+int dcq::query_domain_prepare(const char *domain)
 {
 	unique_lock<mutex> locker(lock);
 
 	if (domain == nullptr)
 	{
-		DCQ_COUT << __FUNCTION__ << " parameter"
-			 	 << " domain:" << domain
-				 << DCQ_ENDL;
+		DCQ_LOG(ERROR) << __FUNCTION__ << " parameter"
+			 	       << " domain:" << domain;
 		return -EINVAL;
 	}
 
 	return dcq_read_params_list(domain, domains);
 }
 
-int dcq::push_file(const char *file_path)
+int dcq::query_file_prepare(const char *file_path)
 {
 	unique_lock<mutex> locker(lock);
 	if (file_path == nullptr)
 	{
-		DCQ_COUT << __FUNCTION__ << " parameter"
-			 	 << " file_path:" << file_path
-				 << DCQ_ENDL;
+		DCQ_LOG(ERROR) << __FUNCTION__ << " parameter"
+			 	       << " file_path:" << file_path;
 		return -EINVAL;
 	}
 
 	if (domains.size() >= DOMAIN_CACHE_MAX_SIZE)
 	{
-		DCQ_COUT << __FUNCTION__ << " Support up to " 
-		         << DOMAIN_CACHE_MAX_SIZE
-				 << DCQ_ENDL;
+		DCQ_LOG(ERROR) << __FUNCTION__ << " Support up to " 
+		               << DOMAIN_CACHE_MAX_SIZE;
 		return -EINVAL;
 	}
 
 	return dcq_read_file_list(file_path, domains);
 }
 
-int dcq::cache_swap()
+int dcq::cache_clear()
 {
 	unique_lock<mutex> locker(lock);
+	DCQ_LOG(INFO) << __FUNCTION__ << "clear domain cache";
 	domains.clear();
 	return 0;
 }
@@ -111,32 +120,56 @@ size_t dcq::size()
 	return domains.size();
 }
 
-int dcq::get_info_sync(domains_info &all_info)
+int dcq::query_domain_sync(domains_result &all_info)
 {
-	return _get_info(this, all_info, nullptr);
-}
+	unique_lock<mutex> locker(lock);
 
-/*int dcq::_get_info(dcq *dcq_handle, domains_info &all_info, call_back_fn fn)
-{
-	unique_lock<mutex> locker(dcq_handle->lock);
-	for (int i = 0; i < dcq_handle->domains.size(); i++)
+	if (domains.size() == 0)
 	{
-		domain_info info;
-		get_domain_info(dcq_handle->domains[i], info, dcq_handle->conf);
-
-		all_info[dcq_handle->domains[i]] = info;
+		DCQ_LOG(WARNING) << __FUNCTION__
+						 << " domain cache is null";
+		return -EEXIST;
 	}
 
-	if (fn)
-		fn(all_info);
+	for (size_t i = 0; i < domains.size(); i++)
+	{
+		domain_info info;
+		get_domain_info(domains[i], info, conf);
+
+		all_info[domains[i]] = info;
+	}
 
 	return 0;
 }
 
-int dcq::get_info_async(domains_info &all_info, call_back_fn fn)
-{	
-	thread work_thread(_get_info, this, all_info, fn);
-}*/
+future<int> dcq::query_domain_async(call_back_fn fn, domains_result &res)
+{
+	auto _get_info = [&res](dcq *dcq_handle, domains_result res, call_back_fn fn) {
+		int ret = 0;
+
+		for (size_t i = 0; i < dcq_handle->domains.size(); i++)
+		{
+			domain_info info;
+			get_domain_info(dcq_handle->domains[i], info, dcq_handle->conf);
+
+			res[dcq_handle->domains[i]] = info;
+		}
+
+		if (fn)
+		{
+			ret = fn(res);
+		}
+		return ret;
+	};
+
+	future<int> ret = std::async(_get_info, this, res, fn);
+	return ret;
+}
+
+int dcq::query_domain_wait(future<int> ret)
+{
+	return ret.get();
+}
 
 dcq::~dcq()
 {

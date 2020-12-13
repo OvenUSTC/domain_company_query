@@ -78,6 +78,7 @@ int dcq_read_params_list(const char *domain, vector<string> &domains)
     {
         cout << "Warn " << domain
              << " is not a domain skip." << endl;
+        return -EINVAL;
     }
     
     return 0;
